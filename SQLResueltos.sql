@@ -13,11 +13,17 @@ WHERE fact_numero = item_numero AND fact_tipo = item_tipo AND fact_sucursal = it
 GROUP BY prod_codigo, prod_detalle
 ORDER BY SUM(item_cantidad) DESC
 
-
 /* EJERCICIO 3 */
 
 SELECT prod_codigo, prod_detalle, SUM(stoc_cantidad)
 FROM Producto, STOCK
 WHERE prod_codigo = stoc_producto
 GROUP BY prod_codigo, prod_detalle
+ORDER BY prod_detalle
 
+/* EJERCICIO 4 */
+
+SELECT prod_codigo, prod_detalle, COUNT(DISTINCT comp_componente)
+FROM Producto LEFT JOIN Composicion ON prod_codigo = comp_producto JOIN STOCK ON prod_codigo = stoc_producto
+GROUP BY prod_codigo, prod_detalle
+HAVING AVG(stoc_cantidad) > 100
