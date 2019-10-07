@@ -79,3 +79,23 @@ SELECT
 	(SELECT COUNT(*) FROM DEPOSITO WHERE depo_encargado = j.empl_codigo) 'Cant. Depositos Jefe',
 	(SELECT COUNT(*) FROM DEPOSITO WHERE depo_encargado = e.empl_codigo) 'Cant. Depositos Empleado'
 FROM Empleado j JOIN Empleado e ON j.empl_codigo = e.empl_jefe
+
+/* EJERCICIO 10 */
+
+SELECT p.prod_codigo 'Cod. Producto', p.prod_detalle 'Producto', (SELECT TOP 1 fact_cliente
+																  FROM Factura, Item_Factura
+																  WHERE fact_tipo = item_tipo AND 
+																        fact_numero = item_numero AND 
+																        fact_sucursal = item_sucursal AND 
+																		p.prod_codigo = item_producto
+                                                                  GROUP BY fact_cliente
+																  ORDER BY SUM(item_cantidad) DESC) 'Cod. Cliente que mas compro'
+FROM Producto p
+WHERE p.prod_codigo IN ((SELECT TOP 10 prod_codigo
+					  FROM Producto JOIN Item_Factura ON prod_codigo = item_producto
+					  GROUP BY prod_codigo
+					  ORDER BY SUM(item_cantidad) DESC)
+				  UNION (SELECT TOP 10 prod_codigo
+						FROM Producto JOIN Item_Factura ON prod_codigo = item_producto
+						GROUP BY prod_codigo
+						ORDER BY SUM(item_cantidad) ASC))
