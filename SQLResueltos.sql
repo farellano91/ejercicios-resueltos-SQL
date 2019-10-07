@@ -51,7 +51,31 @@ GROUP BY rubr_id, rubr_detalle
 
 /* EJERCICIO 7 */
 
-SELECT prod_codigo 'Codigo', prod_detalle 'Producto', MAX(item_precio) 'Precio maximo', MIN(item_precio) 'Precio minimo', CAST(((MAX(item_precio) - MIN(item_precio)) / MIN(item_precio)) * 100 AS DECIMAL(10,2)) 'Dif. Porcentual'
+SELECT 
+	prod_codigo 'Codigo', 
+	prod_detalle 'Producto', 
+	MAX(item_precio) 'Precio maximo', 
+	MIN(item_precio) 'Precio minimo', 
+	CAST(((MAX(item_precio) - MIN(item_precio)) / MIN(item_precio)) * 100 AS DECIMAL(10,2)) 'Dif. Porcentual'
 FROM Producto JOIN Item_Factura ON prod_codigo = item_producto JOIN STOCK ON prod_codigo = stoc_producto
 GROUP BY prod_codigo, prod_detalle
 HAVING SUM(stoc_cantidad) > 0
+
+/* EJERCICIO 8 */
+
+SELECT prod_detalle 'Producto', MAX(stoc_cantidad) 'Max Stock'
+FROM Producto JOIN STOCK ON prod_codigo = stoc_producto
+WHERE stoc_cantidad > 0
+GROUP BY prod_detalle
+HAVING COUNT (DISTINCT stoc_deposito) = (SELECT COUNT(*) FROM DEPOSITO)
+
+/* EJERCICIO 9 */
+
+SELECT 
+    j.empl_codigo 'Jefe', 
+	e.empl_codigo 'Cod. Empleado', 
+	e.empl_nombre 'Nombre Empleado', 
+	e.empl_apellido 'Apellido Empleado', 
+	(SELECT COUNT(*) FROM DEPOSITO WHERE depo_encargado = j.empl_codigo) 'Cant. Depositos Jefe',
+	(SELECT COUNT(*) FROM DEPOSITO WHERE depo_encargado = e.empl_codigo) 'Cant. Depositos Empleado'
+FROM Empleado j JOIN Empleado e ON j.empl_codigo = e.empl_jefe
