@@ -130,3 +130,23 @@ HAVING prod_detalle IN (SELECT DISTINCT prod_detalle
 						WHERE fact_numero = item_numero AND fact_tipo = item_tipo AND fact_sucursal = item_sucursal AND item_producto = prod_codigo AND YEAR(fact_fecha) = 2012
 						)
 ORDER BY SUM(item_cantidad * item_precio) DESC
+
+/* EJERCICIO 13 */
+
+SELECT producto.prod_detalle 'Producto', producto.prod_precio 'Precio', SUM(componente.prod_precio * comp_cantidad) 'Precio total de los componentes'
+FROM Producto producto JOIN Composicion ON producto.prod_codigo = comp_producto JOIN Producto componente ON componente.prod_codigo = comp_componente 
+GROUP BY producto.prod_detalle, producto.prod_precio
+HAVING COUNT(*) > 2
+ORDER BY COUNT(*) DESC
+
+/* EJERCICIO 14 */
+
+SELECT clie_codigo 'Cliente', 
+	   COUNT(*) 'Cant. Compras ultimo año', 
+	   AVG(fact_total) 'Promedio gastado en compras', 
+	   COUNT(DISTINCT item_producto) 'Cant. productos dif. comprados', 
+	   MAX(fact_total) 'Monto mayor compra'
+FROM Cliente LEFT JOIN Factura ON clie_codigo = fact_cliente JOIN Item_Factura ON fact_numero = item_numero AND fact_tipo = item_tipo AND fact_sucursal = item_sucursal
+WHERE YEAR(fact_fecha) = (SELECT MAX(YEAR(fact_fecha)) FROM Factura)
+GROUP BY clie_codigo
+ORDER BY COUNT(*) DESC
