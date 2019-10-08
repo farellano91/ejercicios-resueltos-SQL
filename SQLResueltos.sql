@@ -150,3 +150,12 @@ FROM Cliente LEFT JOIN Factura ON clie_codigo = fact_cliente JOIN Item_Factura O
 WHERE YEAR(fact_fecha) = (SELECT MAX(YEAR(fact_fecha)) FROM Factura)
 GROUP BY clie_codigo
 ORDER BY COUNT(*) DESC
+
+/* EJERCICIO 15 */
+
+SELECT p1.prod_codigo 'Cod. Producto 1', p1.prod_detalle 'Producto 1', p2.prod_codigo 'Cod. Producto 2', p2.prod_detalle 'Producto 2', COUNT(*) 'Cant. veces comprados juntos'
+FROM Producto p1 JOIN Item_Factura i1 ON p1.prod_codigo = i1.item_producto, Producto p2 JOIN Item_Factura i2 ON p2.prod_codigo = i2.item_producto
+WHERE i1.item_numero = i2.item_numero AND i1.item_sucursal = i2.item_sucursal AND i1.item_tipo = i2.item_tipo AND i1.item_producto != i2.item_producto AND i1.item_producto > i2.item_producto
+GROUP BY p1.prod_codigo, p1.prod_detalle, p2.prod_codigo, p2.prod_detalle
+HAVING COUNT(*) > 500
+ORDER BY COUNT(*)
