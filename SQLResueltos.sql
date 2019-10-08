@@ -99,3 +99,34 @@ WHERE p.prod_codigo IN ((SELECT TOP 10 prod_codigo
 						FROM Producto JOIN Item_Factura ON prod_codigo = item_producto
 						GROUP BY prod_codigo
 						ORDER BY SUM(item_cantidad) ASC))
+
+/* EJERCICIO 11 */
+
+SELECT fami_detalle 'Familia', COUNT(DISTINCT item_producto) 'Cant. productos distintos' , SUM(item_cantidad * item_precio) 'Monto Total Venta'
+FROM Producto, Familia, Factura, Item_Factura
+WHERE prod_familia = fami_id AND fact_numero = item_numero AND fact_tipo = item_tipo AND fact_sucursal = item_sucursal AND item_producto = prod_codigo
+GROUP BY fami_detalle
+HAVING fami_detalle IN (SELECT fami_detalle
+						FROM Producto, Familia, Factura, Item_Factura
+						WHERE prod_familia = fami_id AND fact_numero = item_numero AND fact_tipo = item_tipo AND fact_sucursal = item_sucursal AND 
+						item_producto = prod_codigo AND YEAR(fact_fecha) = 2012
+						GROUP BY fami_detalle
+						HAVING SUM(item_cantidad * item_precio) > 20000
+						)
+ORDER BY COUNT(DISTINCT item_producto) DESC
+
+/* EJERCICIO 12 */
+
+SELECT prod_detalle 'Producto', 
+		COUNT(DISTINCT fact_cliente) 'Cant. Clientes que compraron', 
+		AVG(item_cantidad * item_precio) 'Importe Promedio', 
+		COUNT(DISTINCT stoc_deposito) 'Cant, Depositos con Stock', 
+		SUM(stoc_cantidad) 'Stock Total'
+FROM Producto, Factura, Item_Factura, STOCK
+WHERE fact_numero = item_numero AND fact_tipo = item_tipo AND fact_sucursal = item_sucursal AND item_producto = prod_codigo AND prod_codigo = stoc_producto AND stoc_cantidad > 0
+GROUP BY prod_detalle
+HAVING prod_detalle IN (SELECT DISTINCT prod_detalle 
+						FROM Producto, Factura, Item_Factura
+						WHERE fact_numero = item_numero AND fact_tipo = item_tipo AND fact_sucursal = item_sucursal AND item_producto = prod_codigo AND YEAR(fact_fecha) = 2012
+						)
+ORDER BY SUM(item_cantidad * item_precio) DESC
